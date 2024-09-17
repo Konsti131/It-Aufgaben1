@@ -1,0 +1,165 @@
+1. 
+Geerbte Attribute von Robot in householdRobot:
+__device_id
+__name
+__state
+Attribute, die nur für householdRobot spezifisch sind:
+__bat_level
+__dustbin_level
+Falls es eine Subklasse IndustrialRobot gäbe, würde sie die gleichen geerbten Attribute wie householdRobot haben plus zusätzliche spezifische Attribute wie __load_capacity und __operational_hours.
+
+2.
+Traceback (most recent call last):
+  File "\\server\konst.schmi22\Desktop\ETI 13\Python\01_RoboterKlasse_Vererbung.py", line 69, in <module>
+    robot1.get_bat_level() 
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Robot' object has no attribute 'get_bat_level'
+PS Microsoft.PowerShell.Core\FileSystem::\\server\konst.schmi22\Desktop\ETI 13\Python>
+
+Das Die Superklasse Robot hat kein Zugriff auf die Methode get_bat_level() 
+
+3. 
+PS Microsoft.PowerShell.Core\FileSystem::\\server\konst.schmi22\Desktop\ETI 13\Python> & 
+"C:/Program Files/Python3115/python.exe" "//server/konst.schmi22/Desktop/ETI 13/Python/02_RoboterKlasse_Vererbung_Zugriffskontrolle (1).py"
+Traceback (most recent call last):
+  File "\\server\konst.schmi22\Desktop\ETI 13\Python\02_RoboterKlasse_Vererbung_Zugriffskontrolle (1).py", line 26, in <module>
+    householdRobot1.print_batterLevel()
+  File "\\server\konst.schmi22\Desktop\ETI 13\Python\02_RoboterKlasse_Vererbung_Zugriffskontrolle (1).py", line 20, in print_batterLevel
+    print(f"Batterieladezustand von Roboter {self.__name}: {self.__bat_level}%")
+                                             ^^^^^^^^^^^
+AttributeError: 'householdRobot' object has no attribute '_householdRobot__name'. Did you mean: '_householdRobot__bat_level'?
+PS Microsoft.PowerShell.Core\FileSystem::\\server\konst.schmi22\Desktop\ETI 13\Python>
+
+Die Fehlermeldung besagt, dass der householdRobot-Klasse der Zugriff auf das private Attribut __name nicht erlaubt ist, da Python eine Namensänderung (_householdRobot__name) verwendet.
+
+4. 
+# Anlegen der Superklasse "Robot"
+class Robot:
+    def __init__(self, device_id, name, state):
+        self._device_id   = device_id   # Roboter-ID
+        self._name       = name       # Name des Roboters
+        self._state      = state      # Zustand: True = ein, False = aus
+    
+    # Getter und Setter Methoden
+    def get_name(self):
+        return self.__name   
+
+# Anlegen der aus der Superklasse "Robot" abgeleiteten Subklasse "hRobot"
+class householdRobot(Robot):
+    def __init__(self, device_id, name, state, bat_level, dustbin_level):
+        super().__init__(device_id, name, state) # Ruft den Konstruktor der Superklasse auf
+        self._bat_level = bat_level  # Batterieladezustand in %
+        self._dustbin_level = dustbin_level  # Staubbehälterfüllstand in %
+
+    def print_batterLevel(self):
+        print(f"Batterieladezustand von Roboter {self._name}: {self._bat_level}%")
+
+
+
+# Instanziierung des Objekts householdRobot1 aus der Subklasse householdRobot
+householdRobot1 = householdRobot(1234, "WallE", True, 90, 20)
+
+# Hauptprogramm
+householdRobot1.print_batterLevel()
+
+
+
+5. 
+#Anlegen eine Superklasse Device
+class Device: 
+    def __init__(self, device_id, name, location, state):
+        self.__device_id  = device_id  # Geräte-ID
+        self.__name       = name        # Gerätename
+        self.__location   = location    # Aufstellort des Geräts
+        self.__state      = state       # Gerätestatus: Ein/Aus
+    def show_state(self):
+        if self.__state == True:
+            state_str = "eingeschaltet"
+            print(f"{self.__name} ist {state_str}")
+        else:
+            state_str = "ausgeschaltet"
+            print(f"{self.__name} ist {state_str}")
+
+# Anlegen einer Klasse SmartLight
+class SmartLight(Device):
+    def __init__(self, device_id, name, location, state, brightness):
+        super().__init__(device_id, name, location, state)
+        self.__brightness = brightness
+
+        if (brightness > 0) and (brightness <= 100):
+            self.__brightness = brightness
+        elif brightness == 0:
+            self.set_state(False)
+            self.__brightness = 0
+        else:
+            self.__brightness = 0
+            print("Die Helligkeit muss zwischen 0 und 100 liegen!")
+    
+    def get_name(self):
+        return self.__name
+    
+    def set_name(self, name):
+        self.__name = name
+    
+    def is_state(self):
+        return self.__state
+    
+    def set_state(self, state):
+        self.__state = state
+
+    def get_brightness(self):
+        return self.__brightness
+    
+    def set_brightness(self, brightness):
+        if (brightness > 0) and (brightness <= 100):
+            self.__brightness = brightness
+            self.set_state(True)
+        elif brightness == 0:
+            self.set_state(False)
+        else: 
+            print("Die Helligkeit muss zwischen 0 und 100 liegen!")
+
+    
+    def show_state(self):
+        super().show_state()
+        print(f"Die Lampe leuchtet bei {self.__brightness}%")
+        return self.__brightness
+
+# Anlegen einer Klasse Thermostat
+class Thermostat(Device):
+    def __init__(self, device_id, name, location, state, temperature):
+        super().__init__(device_id, name, location, state)
+        self.__temperature = temperature
+
+
+    def get_name(self):
+        return self.__name
+    
+    def set_name(self, name):
+        self.__name = name
+    
+    def is_state(self):
+        return self.__state
+    
+    def set_state(self, state):
+        self.__state = state
+
+    def get_temperature(self):
+        return self.__temperature
+    
+    def set_temperature(self, temperature):
+        self.__temperature = temperature
+
+    def show_state(self):
+        super().show_state()
+        print(f"Es ist {self.__temperature} Grad")
+        return self.__temperature
+
+thermo1=Thermostat(2, "thermo1", "Garten", True, 30 )
+
+print(f"Thermostat {thermo1.show_state()}")
+
+lampe1=SmartLight(3, "lampe1", "Wohnzimmer", True, 50)
+
+print(f"Lampe {lampe1.show_state()}")
+
