@@ -1,0 +1,142 @@
+1.
+a) Bezeichnungen der Super- und Subklasse:
+Superklasse: Radiator
+Subklasse: RadiatorLivingRoom
+b) Übergabe der Attribute der Superklasse an die Subklasse:
+In Zeile 27: super().__init__("Wohnzimmer", current_temp)
+Hier wird der Konstruktor (__init__) der Superklasse (Radiator) aufgerufen, um die Attribute der Superklasse (room, current_temp, target_temp) an die Subklasse zu übergeben.
+Die Syntax super().__init__() wird verwendet, um den Konstruktor der Superklasse aufzurufen.
+Besonderheit in Bezug auf das Attribut room: Das Attribut __room wird explizit auf "Wohnzimmer" gesetzt, während in der Superklasse die Raumbezeichnung (Attribut room) normalerweise vom Konstruktor übernommen wird. In der Subklasse wird es jedoch hartcodiert als "Wohnzimmer" übergeben.
+c) Methodenüberschreibung (Overriding):
+Eine Methodenüberschreibung findet in Zeile 29 statt, wo die Methode adjust_temp der Subklasse RadiatorLivingRoom die gleichnamige Methode der Superklasse Radiator überschreibt.
+
+Auswirkungen auf die Ausgabe in der Konsole: Die Methode in der Subklasse führt zusätzliche Logik ein, indem sie die aktuelle Temperatur ausgibt und sicherstellt, dass die Zieltemperatur für das Wohnzimmer mindestens 22°C beträgt. Erst danach wird die Methode der Superklasse aufgerufen, die basierend auf der Temperatur entscheidet, ob die Heizung ein- oder ausgeschaltet werden soll. Ohne die Überschreibung würde diese zusätzliche Logik nicht ausgeführt werden.
+
+Beispiel der Ausgabe bei einer Überschreibung:
+makefile
+Code kopieren
+Wohnzimmer: Aktuelle Temperatur ist 18°C.
+Die Zieltemperatur im Wohnzimmer wird automatisch auf 22°C erhöht.
+Wohnzimmer: Heizung wird eingeschaltet.
+Polymorphismus: Man spricht von Polymorphismus, weil eine Methode derselben Signatur (Name, Parameter) in verschiedenen Klassen unterschiedlich implementiert wird. In diesem Fall kann das Objekt living_room sowohl Methoden der Superklasse als auch der Subklasse verwenden, und die Version der Methode, die aufgerufen wird, hängt vom tatsächlichen Typ des Objekts ab.
+
+d) Fehler in Zeile 32 und alternative Lösung:
+Der Fehler tritt in Zeile 31 auf, wenn der Zugriff auf self.__current_temp versucht wird. Der Grund dafür ist, dass __current_temp als private Variable definiert wurde (mit zwei Unterstrichen), was bedeutet, dass sie außerhalb der Klasse Radiator nicht direkt zugreifbar ist, auch nicht in der Subklasse.
+
+Fehlermeldung: "AttributeError: 'RadiatorLivingRoom' object has no attribute '__current_temp'"
+Alternative Lösung: Statt direkt auf self.__current_temp zuzugreifen, sollte die öffentliche Getter-Methode get_current_temp() verwendet werden:
+
+python
+Code kopieren
+print(f"Wohnzimmer: Aktuelle Temperatur ist {self.get_current_temp()}°C.")
+
+2.
+Der Fehler im Programmcode liegt in der Methode show_info der Klasse Student, genauer gesagt in Zeile 52. In dieser Zeile wird versucht, auf die Attribute __name und __age zuzugreifen, 
+die in der Superklasse Person als private Attribute definiert sind. 
+Private Attribute sind jedoch außerhalb der Klasse, in der sie definiert wurden, nicht direkt zugreifbar, auch nicht in Subklassen
+
+Lösung:
+class Person:
+    def __init__(self, name, age):
+        self._name = name  # "Protected" statt "private"
+        self._age = age    # "Protected" statt "private"
+
+class Student(Person):
+    def __init__(self, name, age, student_id):
+        super().__init__(name, age)
+        self.__student_id = student_id
+
+    def show_info(self):
+        # Direkter Zugriff auf geschützte Attribute der Superklasse
+        print(f"Name: {self._name}, Age: {self._age}, Student ID: {self.__student_id}")
+
+# Objekt der Klasse Student erstellen und Info anzeigen
+student = Student("Fritz", 22, "S12345")
+student.show_info()
+
+Man kann aber auch die Getter Methode verwenden um auf die Attribute zuzugreife.
+
+3.
+#Anlegen der Superklasse Vehicle
+class Vehicle:
+    def __init__(self, name):
+        self._speed = 0
+        self._name= name
+
+    #Getter und Setter Methoden
+
+    def get_name(self):
+            return self._name
+    
+    def set_name(self, name):
+        if (name.isalpha()):
+            self._name = name
+        else:
+            print("es dürfen nur Buchstaben benutzt werden")
+
+#Anlegen Methoden für accelerate und brake
+
+    def accelerate(self, increase):
+        self._speed += increase
+        print(f"{self._name} beschleunigt. Geschwindigkeit: {self._speed} km/h")
+
+    def brake(self, decrease):
+        self._speed = max(self._speed - decrease, 0)  # Geschwindigkeit darf nicht unter 0 fallen
+        print(f"{self._name} bremst. Geschwindigkeit: {self._speed} km/h")
+         
+
+              
+
+#Anlegen der Sub-Klasse Car
+class Car(Vehicle):
+     def __init__(self, name):
+          super().__init__(name)
+          self._fuelLevel = 50 #Benzinstand festlegen
+        
+     def accelerate(self, increase):
+        if self._fuelLevel > 0:
+            super().accelerate(increase)  # Geschwindigkeit erhöhen (Superklasse-Methode aufrufen)
+            self._fuelLevel -= 1  # Benzinfüllstand um 1 Liter reduzieren
+            print(f"{self._name}: Benzinfüllstand: {self._fuelLevel} Liter")
+        else:
+            print(f"{self._name}: Kein Benzin mehr. Kann nicht beschleunigen.")
+          
+     def brake (self, decrease):
+         super().brake(decrease)
+
+
+     def get_fuelLevel(self):
+        return self._fuelLevel
+
+
+
+
+#Anlegen Sub-Klasse Bycicle
+class Bicycle(Vehicle):
+     def __init__(self, name):
+          super().__init__(name)
+
+     def accelerate(self, increase):
+         if self._speed + increase > 25:
+            self._speed = 25 
+            raise ValueError("Fahrrad darf nur bis 25 fahren")
+         else:
+            super().accelerate(increase)
+     
+     def brake (self, decrease):
+         super().brake(decrease) #Superklasse aufrufen
+            
+
+# Erstellen eines Autos
+Car1 = Car("Auto1")
+
+# Erstellen eines Fahrrads
+Fahrrad1 = Bicycle("Fahrrad1")
+
+# Aktionen für das Auto
+Car1.accelerate(30)  
+Car1.brake(10)       
+
+# Aktionen für das Fahrrad
+Fahrrad1.accelerate(25)    
+Fahrrad1.brake(15)       
